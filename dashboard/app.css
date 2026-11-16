@@ -141,6 +141,7 @@ tbody tr[aria-selected="true"] td { background: var(--accent-wash); }
 .value { display: flex; align-items: center; gap: var(--s2); justify-content: flex-end; }
 .value .bar { width: 56px; height: 5px; border-radius: 3px; background: #eceade; overflow: hidden; flex: none; }
 .value .bar i { display: block; height: 100%; background: var(--accent); }
+.adj { color: var(--ink-soft, #6b665c); font-size: 12px; }
 .mult { display: grid; gap: 1px; min-width: 168px; }
 .mult b { font-family: var(--font-num); font-weight: 500; font-size: 13px; }
 .mult span { color: var(--muted); font-size: 10.5px; line-height: 1.35; }

@@ -27,6 +27,8 @@
   const pct = (n) => (n === null || n === undefined || !Number.isFinite(n) ? 'n/a' : (n > 0 ? '+' : '') + n.toFixed(2) + '%');
   const age = (d) => (d === null || d === undefined ? 'unknown' : d >= 365 ? (d / 365).toFixed(1) + 'y' : Math.round(d) + 'd');
   const mult = (x) => x.toFixed(3);
+  /** The two adjustment factors on the board: three decimals, the trailing one dropped when it is 0. */
+  const mult2 = (x) => (Number.isFinite(x) ? x.toFixed(2) : 'n/a');
 
   /* ---------- a small DOM builder ---------- */
 
@@ -69,6 +71,8 @@
     tvl: (r) => r.tvl_usd,
     multiple: (r) => r.multiple,
     growth: (r) => (r.change_7d === null ? -Infinity : r.change_7d),
+    growth_mult: (r) => r.growth_multiplier,
+    maturity_mult: (r) => r.maturity_multiplier,
     implied: (r) => r.implied_value_usd,
   };
 
@@ -197,14 +201,16 @@
         h('td', { class: 'num right', text: money(r.tvl_usd) }),
         h('td', null, h('div', { class: 'mult' }, h('b', { text: mult(r.multiple) }), h('span', { text: r.multiple_source }))),
         h('td', { class: 'num right ' + (r.change_7d === null ? '' : r.change_7d >= 0 ? 'pos' : 'neg'), text: pct(r.change_7d) }),
+        h('td', { class: 'num right adj', text: mult2(r.growth_multiplier) }),
+        h('td', { class: 'num right adj', text: mult2(r.maturity_multiplier) }),
         h('td', null, h('div', { class: 'value' },
           h('span', { class: 'bar', 'aria-hidden': 'true' }, h('i', { style: 'width:' + width + '%' })),
           h('span', { class: 'num', text: money(r.implied_value_usd) })))));
     }
     return h('div', { class: 'panel' },
       h('div', { class: 'caption' },
-        h('span', null, 'Ranked by implied value. The multiple is the median the market pays for a dollar of TVL in that category, so rows in one category share it.'),
-        h('span', { text: list.length + ' shown \u00b7 select a row for its derivation and farm plan' })),
+        h('span', null, 'Ranked by implied value = TVL \u00d7 the multiple the market pays for a dollar of TVL in that category \u00d7 the growth factor \u00d7 the age factor. The last two are columns, so every row recomputes from what is on screen; the bars are each row\u2019s share of the top row. The multiple is measured from the 128 protocols in this snapshot whose token trades and whose record carries both a TVL and a market cap \u2014 the other token holders are stablecoins, wrapped or bridged assets, or carry no market cap, so they cannot price a dollar of TVL.'),
+        h('span', { text: list.length + ' shown \u00b7 select a row for its full derivation and its farm plan' })),
       h('div', { class: 'table-wrap' },
       h('table', null,
         h('thead', null, h('tr', null,
@@ -213,7 +219,9 @@
           th('Category', 'category'),
           th('TVL', 'tvl', 'right'),
           th('Multiple', 'multiple'),
-          th('7-day', 'growth', 'right'),
+          th('TVL 7d', 'growth', 'right'),
+          th('\u00d7 Growth', 'growth_mult', 'right'),
+          th('\u00d7 Age', 'maturity_mult', 'right'),
           th('Implied value', 'implied', 'right'))),
         body)));
   }
